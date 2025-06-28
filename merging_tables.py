@@ -71,7 +71,7 @@ def full_table(df, weights):
 
     cols = list(df.columns)
     mins_played_col_index, mvp_score_col_index = cols.index('minutes_played'), cols.index('MVP_score')
-    cols[mvp_score_col_index], cols[min_played_index] = cols[mins_played_index], cols[mvp_score_col_index]
+    cols[mvp_score_col_index], cols[mins_played_col_index] = cols[mins_played_col_index], cols[mvp_score_col_index]
     df = df[cols]
 
     return df.head(10)
