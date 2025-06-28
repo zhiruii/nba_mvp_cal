@@ -76,10 +76,3 @@ def reg_stats_table(year):
 
     reg_df = pd.DataFrame(reg_data_filtered)
     return reg_df
-
-#what_year = int(input("Which season's reg stats would you like?: "))
-#try:
-    #reg_df = reg_stats_table(what_year)
-    #print(reg_df.to_string())
-#except ValueError as e:
-    #print(f'Error: {e}')
