@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 import requests
 from collections import namedtuple
 
-#Scrapes NBA advanced stats for a given season from basketball-reference.com
+#scrapes NBA advanced stats for a given season from basketball-reference.com
 def advanced_stats_table(year):
     url = f'https://www.basketball-reference.com/leagues/NBA_{year}_advanced.html'
     response= requests.get(url)
@@ -37,6 +37,8 @@ def advanced_stats_table(year):
         try:
             #removing trailing award tags, like MVP/All star votings if present
             float(player[-1])
+        except IndexError:
+            pass
         except ValueError:
             player.pop()
 
