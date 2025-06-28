@@ -13,17 +13,10 @@ def reg_stats_table(year):
 
     soup = BeautifulSoup(response.text, 'html.parser')
     tables = soup.find_all('table')
-
-    if not tables:
-        raise ValueError(f"No data available for NBA season {year} (no tables found on page).")
     
     #extract target table and its body
     table1 = tables[0]
     tbody = table1.find('tbody')
-
-    if not tbody or not tbody.find('tr'):
-        raise ValueError(f"No per game stats data available for NBA season {year}.")
-
 
     raw_data_reg = tbody.text
 
@@ -34,8 +27,8 @@ def reg_stats_table(year):
     #player stats separated by 3 spaces
     players_reg = raw_data_reg.strip().split('   ')
 
-    for i in players_reg:
-        player_reg = i.split()
+    for player in players_reg:
+        player_reg = player.split()
 
         #removal of trailing MVP/ All-star tags, just like in the scraping of advanced stats
         try:
@@ -45,16 +38,18 @@ def reg_stats_table(year):
         except ValueError:
             player_reg.pop()
         
-        #handle players with 3+ word names (e.g., "Kelly Oubre Jr.")
+        #handle players with 3+ word names (e.g., "Kelly Oubre Jr."). Players with typcial 2-worded names have info len of 30
         if len(player_reg) < 31:
             pass
         else:
             if len(player_reg) > 31:
                 more_by = len(player_reg) - 31
+                #in case player has 4, 5 worded-names
                 for j in range(more_by):
                     player_reg[2] = str(player_reg[2] + " " + player_reg[3])
                     del player_reg[3]
-            #unlike in advanced stats, total minutes played must be manually calculated
+            #unlike in advanced stats, total minutes played must be manually calculated. This is done after removing award tags and name incosistancy
+            #so that the indexing stays consistant
             try:
                 games_played = float(player_reg[6])
                 minutes_pg = float(player_reg[8])
