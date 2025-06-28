@@ -36,7 +36,7 @@ def advanced_stats_table(year):
         except ValueError:
             player.pop()
 
-        # handle players with 3+ word names (e.g., "Jaren Jackson Jr."), normal player with 2 worded names have info len of 28
+        # handle players with 3+ word names (e.g., "Jaren Jackson Jr."), normal player with 2 worded names have info len of 28, so we do not edit those
         if len(player) < 29:
             pass
         else:
