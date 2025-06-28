@@ -12,7 +12,14 @@ def pre_score_table(year):
         reg_table = reg_stats_table(year)
     except ValueError as e:
         raise ValueError (f'Error while scrapping data for season {year}: {e}')
-
+    
+    #merging the advanced_stats and reg_stats table so that we can use all the stats in the weighted equation to calculated MVP score
+    #we are only merging players with the same name, age, and team in the same season. This is to prevent merging wrong stats in the event
+    #that players share the same name. The likelihood of players sharing the same name, age, and team in the same season is very very low.
+    #players are dropped if they appear on one table, but not the other. This is because reg_stats manually calculated total minutes played, resulting 
+    #in fringe cases where they may have met the 1560 mark in the advanced_table, but not for the reg_table as we used averaged MPG. These players that
+    #barely made the mark are insigifcant to our mvp candidates shortlist.
+   
     merged_df = pd.merge(advanced_table, reg_table, on=['name', 'age', 'team'], how= "inner")
     return merged_df
 
@@ -38,9 +45,9 @@ def weightage():
         for stat_norm in default_weights.items():
             while True:
                 try:
-                    value = float(input(f"Enter weight for {stat_norm} (0 to 1): "))
-                    if 0 <= value <= 1:
-                        weights[stat_norm] = value
+                    weight = float(input(f"Enter weight for {stat_norm} (0 to 1): "))
+                    if 0 <= weight <= 1:
+                        weights[stat_norm] = weight
                         break
                     else:
                         print("Please enter a number between 0 and 1.")
@@ -57,18 +64,20 @@ def weightage():
 
 def full_table(df, weights):
     stats = ['PER', 'TS', 'WS', 'BPM', 'PPG', 'AST', 'TRB', 'BLK', 'STL']
+    #create a new column for every normalised stats for every player. min-max normalisation used
     for stat in stats:
         df[f'{stat}_norm'] = (df[stat] - df[stat].min()) / (df[stat].max() - df[stat].min())
 
+    #create a new column called 'MVP_score', which is found by getting (normalised stat x of a player * assigned weight) for every stat, then adding them together 
     df['MVP_score'] = sum(df[stat_norm] * weight for stat_norm, weight in weights.items())
     df = df.sort_values('MVP_score', ascending= False)
 
-    cols = list(df.columns)
-    a, b = cols.index('minutes_played'), cols.index('MVP_score')
-    cols[b], cols[a] = cols[a], cols[b]
-    df = df[cols]
+    new_column_order = ['name', 'age', 'team', 'MVP_score', 'PER' ,'TS', 'WS', 'BPM', 'PPG', 'AST',
+                        'TRB', 'BLK', 'STL', 'PER_norm','TS_norm', 'WS_norm', 'BPM_norm', 'PPG_norm', 'AST_norm',
+                        'TRB_norm', 'BLK_norm', 'STL_norm', 'minutes_played']
+    df_reordered = df[new_column_order]
 
-    return df.head(10)
+    return df_reordered.head(10)
 
 
 
