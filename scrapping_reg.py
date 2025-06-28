@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import requests
 from collections import namedtuple
 
+#scrapes NBA per-game stats for a given season from basketball-reference.com
 def reg_stats_table(year):
     url = f'https://www.basketball-reference.com/leagues/NBA_{year}_per_game.html'
     response= requests.get(url)
@@ -15,7 +16,8 @@ def reg_stats_table(year):
 
     if not tables:
         raise ValueError(f"No data available for NBA season {year} (no tables found on page).")
-
+    
+    #extract target table and its body
     table1 = tables[0]
     tbody = table1.find('tbody')
 
@@ -28,18 +30,22 @@ def reg_stats_table(year):
     entries_reg = []
     games_played = 0
     minutes_pg = 0
+    
+    #player stats separated by 3 spaces
     players_reg = raw_data_reg.strip().split('   ')
 
     for i in players_reg:
         player_reg = i.split()
 
+        #removal of trailing MVP/ All-star tags, just like in the scraping of advanced stats
         try:
             float(player_reg[-1])
         except IndexError:
             pass
         except ValueError:
             player_reg.pop()
-
+        
+        #handle players with 3+ word names (e.g., "Kelly Oubre Jr.")
         if len(player_reg) < 31:
             pass
         else:
@@ -48,13 +54,13 @@ def reg_stats_table(year):
                 for j in range(more_by):
                     player_reg[2] = str(player_reg[2] + " " + player_reg[3])
                     del player_reg[3]
-
+            #unlike in advanced stats, total minutes played must be manually calculated
             try:
                 games_played = float(player_reg[6])
                 minutes_pg = float(player_reg[8])
             except ValueError:
                 pass
-
+            #filter by playing time (24MPG * 65 games = 1560)
             if int(games_played * minutes_pg) > 1560:
                 entries_reg.append(player_reg)
 
