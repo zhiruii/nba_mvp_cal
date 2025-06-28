@@ -64,12 +64,11 @@ def advanced_stats_table(year):
 
     advanced_df = pd.DataFrame(advanced_data_filtered)
     return advanced_df
-what_year = int(input("Which season's advanced stats would you like?: "))
-try:
-    advanced_df = advanced_stats_table(what_year)
-    print(advanced_df.to_string())
-except ValueError as e:
-    print(f'Error: {e}')
+
+
+#what_year = int(input("Which season's advanced stats would you like?: "))
+#try:
+    #advanced_df = advanced_stats_table(what_year)
     #print(advanced_df.to_string())
 #except ValueError as e:
     #print(f'Error: {e}')
